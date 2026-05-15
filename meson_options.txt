@@ -3,3 +3,11 @@ option('static',
   value : false,
   description : 'Statically link the binary (-static, -static-libgcc).',
 )
+
+option('with_target_tests',
+  type : 'boolean',
+  value : false,
+  description : 'Register the target-side pytest run with `meson test`. ' +
+                'When enabled, MPQ_SERIAL_PORT must be set in the env ' +
+                '(default /dev/ttyUSB0 inside the tests).',
+)
