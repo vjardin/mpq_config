@@ -1,0 +1,8 @@
+# meson build trees
+build/
+build-*/
+# host build artefact from the legacy Makefile path
+/mpq_config
+# python bytecode caches
+__pycache__/
+*.pyc
