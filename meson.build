@@ -50,9 +50,18 @@ if pytest.found()
 
   test_dir = meson.current_source_dir() / 'test'
 
+  # pytest writes its own JUnit XML alongside meson's testlog.junit.xml,
+  # but with one <testcase> per pytest test (not one per meson test()
+  # block). CI's test-report publisher consumes these to produce the
+  # per-test pass/fail grid on the run page.
+  host_junit   = meson.current_build_dir() / 'pytest-junit-host.xml'
+  target_junit = meson.current_build_dir() / 'pytest-junit-target.xml'
+
   test('host',
     pytest,
-    args : ['-m', 'host', '-q', test_dir],
+    args : ['-m', 'host', '-q',
+            '--junitxml=' + host_junit,
+            test_dir],
     env : test_env,
     suite : 'host',
     timeout : 60,
@@ -62,7 +71,9 @@ if pytest.found()
   if get_option('with_target_tests')
     test('target',
       pytest,
-      args : ['-m', 'target', '-q', test_dir],
+      args : ['-m', 'target', '-q',
+              '--junitxml=' + target_junit,
+              test_dir],
       env : test_env,
       suite : 'target',
       timeout : 120,

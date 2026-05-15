@@ -19,6 +19,9 @@ on:
 
 permissions:
   contents: read
+  # Needed by mikepenz/action-junit-report to publish a Check
+  # with the per-test pass/fail grid (one per matrix cell).
+  checks: write
 
 jobs:
   build:
@@ -62,6 +65,20 @@ jobs:
 
       - name: meson test (host)
         run: meson test -C build --print-errorlogs
+
+      # Render pytest's JUnit XML (one <testcase> per pytest test,
+      # written by meson.build via --junitxml=) as a per-test
+      # pass/fail grid on the run's Checks tab. `if: always()` so
+      # failures still get reported.
+      - name: Publish test report
+        if: always()
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: build/pytest-junit-host.xml
+          check_name: tests (${{ matrix.os }}, ${{ matrix.cc }})
+          require_tests: true
+          include_passed: true
+          detailed_summary: true
 
       - name: Upload meson test logs on failure
         if: failure()
