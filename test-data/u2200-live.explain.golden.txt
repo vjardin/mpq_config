@@ -1,0 +1,93 @@
+# generated: 1970-01-01T00:19:16Z
+# source: i2c@0x10 bus 0
+# reg  value  name                       decoded
+  0x01 0x80   OPERATION                  raw 0x80
+  0x02 0x1E   ON_OFF_CONFIG              OPER=req CTRL=req-AH soft-turn-off
+  0x10 0x00   WRITE_PROTECT              unlocked
+  0x20 0x17   VOUT_MODE                  mode=LINEAR16 exp=-9 (1 LSB = 2^-9 V)
+  0x21 0x01B3 VOUT_COMMAND               849 mV (0.849 V)
+  0x22 0x0000 VOUT_TRIM                  raw 0x0000
+  0x24 0x01C3 VOUT_MAX                   880 mV (0.880 V)
+  0x25 0x0200 VOUT_MARGIN_HIGH           1000 mV (1.000 V)
+  0x26 0x019A VOUT_MARGIN_LOW            800 mV (0.800 V)
+  0x29 0x0400 VOUT_SCALE_LOOP            raw 0x0400
+  0x2B 0x018C VOUT_MIN                   773 mV (0.773 V)
+  0x35 0x0032 VIN_ON                     1250 mV (1.250 V)
+  0x36 0x002D VIN_OFF                    1125 mV (1.125 V)
+  0x38 0x0400 IOUT_CAL_GAIN              raw 0x0400
+  0x39 0x0000 IOUT_CAL_OFFSET            raw 0x0000
+  0x40 0x0000 VOUT_OV_FAULT_LIMIT        0 mV (0.000 V)
+  0x42 0x0000 VOUT_OV_WARN_LIMIT         0 mV (0.000 V)
+  0x43 0x0000 VOUT_UV_WARN_LIMIT         0 mV (0.000 V)
+  0x44 0x0000 VOUT_UV_FAULT_LIMIT        0 mV (0.000 V)
+  0x46 0x004B IOUT_OC_FAULT_LIMIT        4687 mA (4.687 A)
+  0x4A 0x003C IOUT_OC_WARN_LIMIT         3750 mA (3.750 A)
+  0x4D 0x0040 VBOOT_SET_FOR_X0h_ADDR     125 mV (0.125 V)
+  0x4F 0x0096 OT_FAULT_LIMIT             150 C
+  0x51 0x0078 OT_WARN_LIMIT              120 C
+  0x55 0x0050 VIN_OV_FAULT_LIMIT         2000 mV (2.000 V)
+  0x57 0x0050 VIN_OV_WARN_LIMIT          2000 mV (2.000 V)
+  0x58 0x0014 VIN_UV_WARN_LIMIT          500 mV (0.500 V)
+  0x59 0x0000 VIN_UV_FAULT_LIMIT         0 mV (0.000 V)
+  0x5E 0x0040 VBOOT_SET_FOR_X4h_ADDR     125 mV (0.125 V)
+  0x5F 0x0040 VBOOT_SET_FOR_X8h_ADDR     125 mV (0.125 V)
+  0x60 0x0000 TON_DELAY                  0 us (raw m=0 e=0)
+  0x61 0x0014 TON_RISE                   20 us (raw m=20 e=0)
+  0x64 0x0000 TOFF_DELAY                 0 us (raw m=0 e=0)
+  0x65 0x0014 TOFF_FALL                  20 us (raw m=20 e=0)
+  0x6A 0x0040 VBOOT_SET_FOR_XEh_ADDR     125 mV (0.125 V)
+  0x79 0x1000 STATUS_WORD                NVM_SUMMARY
+  0x88 0x01DA READ_VIN                   11850 mV (11.850 V)
+  0x8B 0x01A9 READ_VOUT                  830 mV (0.830 V)
+  0x8C 0x0108 READ_IOUT                  16500 mA (16.500 A)
+  0x8D 0x004B READ_TEMPERATURE_1         75 C
+  0x98 0x33   PMBUS_REVISION             raw 0x33
+  0x9B 0x01   MFR_REVISION               raw 0x01
+  0xC0 0x0000 MFR_CONFIG_ID              raw 0x0000
+  0xC1 0xC003 MFR_CONFIG_CODE_REV        raw 0xC003
+  0xC2 0xCAFE MFR_PRODUCT_REV_USER       raw 0xCAFE
+  0xC3 0x00   MFR_SILICON_REV            raw 0x00
+  0xC5 0x0094 MFR_APS_LEVEL              raw 0x0094
+  0xD0 0x01C5 MFR_CONFIG_A               raw 0x01C5
+  0xD1 0xB046 MFR_FS_CFG                 raw 0xB046
+  0xD2 0x10   MFR_ADDR_PMBUS             raw 0x10
+  0xD3 0x0603 MFR_VOUT_RATE              raw 0x0603
+  0xD4 0x1114 MFR_PWM_TIME_CFG           raw 0x1114
+  0xD5 0x1210 MFR_PWM_TIME_CFG2          raw 0x1210
+  0xD6 0x0514 MFR_PHASE_BLANK_TIME       raw 0x0514
+  0xD7 0x0214 MFR_PHASE_SLOPE_BLANK_TIME raw 0x0214
+  0xD8 0x0208 MFR_SLOPE_BLANK_TIME       raw 0x0208
+  0xD9 0x0088 MFR_BLANK_TIME_LV          raw 0x0088
+  0xDA 0x0140 MFR_SLOPE_CNT_DCM          raw 0x0140
+  0xDB 0x0185 MFR_SLOPE_SR_DCM           raw 0x0185
+  0xDC 0xE200 MFR_SW_BLOCK_LIMIT         raw 0xE200
+  0xDD 0xED8C MFR_VCOMP                  raw 0xED8C
+  0xDE 0xF5CE MFR_DROOP_CFG              raw 0xF5CE
+  0xDF 0x010F MFR_CONFIG_B               raw 0x010F
+  0xE0 0x3CF1 MFR_DC_LOOP_CTRL           raw 0x3CF1
+  0xE1 0x0E73 MFR_CB_LOOP_CTRL           raw 0x0E73
+  0xE2 0x4107 MFR_FS_LOOP_CTRL           raw 0x4107
+  0xE3 0x0150 MFR_VIN_CFG                raw 0x0150
+  0xE4 0x0100 MFR_VIN_SCALE              raw 0x0100
+  0xE5 0x0064 MFR_TEMP_TUNE              raw 0x0064
+  0xE6 0xF17F MFR_PROTECT_CFG            raw 0xF17F
+  0xE7 0x0425 MFR_PROTECT_LEVEL          raw 0x0425
+  0xE8 0x551F MFR_PRT_DELAY              raw 0x551F
+  0xE9 0x8000 SMBALERT_MASK              raw 0x8000
+  0xEA 0x2814 MFR_NOCP_OCP_SET           raw 0x2814
+  0xEB 0x0214 MFR_LEVEL_SEL2             raw 0x0214
+  0xEC 0x1000 MFR_PG_CFG                 raw 0x1000
+  0xED 0x0961 MFR_PS_CTRL                raw 0x0961
+  0xEE 0x0000 MFR_PMBUS_LOCK             unlocked
+  0xEF 0x4600 MFR_SET_SYNC_CFG           raw 0x4600
+  0xF0 0x0000 MFR_SLAVE_PROTECT          raw 0x0000
+  0xF1 0x8960 MFR_CTRL                   raw 0x8960
+  0xF2 0x0000 MFR_AUTO_SLOPE_CFG         raw 0x0000
+  0xF3 0x0420 MFR_SLOPE_DELTA_LIMIT      raw 0x0420
+  0xF4 0xFFFF MFR_RETRY_TIMES            raw 0xFFFF
+  0xF5 0xD122 MFR_CFG_EXT                CLR_LAST_EN=0 RST_DEASS_CFG=1 (raw 0xd122)
+  0xF6 0x0787 MFR_CDROOP_SET             raw 0x0787
+  0xF7 0x04A7 MFR_CFG_BACKUP             raw 0x04A7
+  0xF8 0xA24F CRC_USER                   raw 0xA24F
+  0xFB 0x0010 PROTECTION_LAST            VIN_UVLO_FAULT
+  0xFC 0x01B3 MFR_VBOOT_CFG              raw 0x01B3
