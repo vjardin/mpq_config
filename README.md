@@ -1,5 +1,7 @@
 # mpq_config
 
+[![CI](https://github.com/vjardin/mpq_config/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/vjardin/mpq_config/actions/workflows/ci.yml)
+
 MPS MPQ8785 / MPQ8646 chip-config dump / clone / restore tool.
 
 Companion of the Linux `pmbus/mpq8785` kernel driver.

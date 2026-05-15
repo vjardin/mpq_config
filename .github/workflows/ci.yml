@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: BSD-4-Clause
+# Copyright 2026 Vincent Jardin, Free Mobile <vjardin@free.fr>
+#
+# Matrix: {gcc, clang} x {x86_64, arm64} on the latest Ubuntu runners.
+# Each cell builds with meson and runs the host pytest suite that
+# meson test wraps. Target tests (-Dwith_target_tests=true) are not
+# run in CI because they require a board on a serial port.
+#
+# A separate job lints every Python file in the tree with ruff
+# (covers syntax + pyflakes + import hygiene by default).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build+test (${{ matrix.os }}, ${{ matrix.cc }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # ubuntu-latest is the x86_64 GitHub-hosted image;
+        # ubuntu-24.04-arm is the native aarch64 image (free for
+        # public repos). Tests therefore run on the real ISA, no
+        # QEMU emulation.
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+        cc: [gcc, clang]
+    env:
+      CC: ${{ matrix.cc }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            meson ninja-build pkg-config \
+            gcc clang \
+            python3 python3-pytest
+
+      - name: Show toolchain
+        run: |
+          "$CC" --version
+          meson --version
+          ninja --version
+          python3 --version
+
+      - name: meson setup
+        run: meson setup build
+
+      - name: meson compile
+        run: meson compile -C build
+
+      - name: meson test (host)
+        run: meson test -C build --print-errorlogs
+
+      - name: Upload meson test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meson-logs-${{ matrix.os }}-${{ matrix.cc }}
+          path: build/meson-logs/
+          if-no-files-found: ignore
+
+  python-lint:
+    name: python lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Install ruff
+        run: pip install --upgrade ruff
+
+      - name: ruff check
+        run: ruff check .
