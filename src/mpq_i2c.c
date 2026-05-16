@@ -128,29 +128,42 @@ nvm_busy_wait(void) {
 }
 
 /*
- * Pre-flight: refuse to write if the kernel mpq8785 driver's
- * alarm-poll worker is active. Its 1 Hz STATUS_WORD reads would
- * interleave with our bulk writes and could land mid-NVM-busy
- * window, corrupting the cloned config.
+ * Pre-flight: refuse to write if either of the candidate kernel
+ * drivers (mpq8646, mpq8785) has its alarm-poll worker active. Its
+ * 1 Hz STATUS_WORD reads would interleave with our bulk writes and
+ * could land mid-NVM-busy window, corrupting the cloned config.
  *
- *   echo 0 > /sys/kernel/debug/mpq8785/<bus>-<addr>/alarm_poll_interval_ms
+ *   echo 0 > /sys/kernel/debug/<drv>/<bus>-<addr>/alarm_poll_interval_ms
  *
  * before running `write` (or pass --force to bypass the check).
+ * Both driver names are probed because the same silicon binds to
+ * either depending on the DT compatible ("mps,mpq8646" -> mpq8646
+ * driver, "mps,mpq8785" -> mpq8785 driver). At most one path exists
+ * at a time (i2c-core: single driver per device).
  *
  * Returns 0 if it is safe to proceed, -1 if the caller should
  * abort.
  */
+static const char *const MPQ_DEBUGFS_DRIVERS[] = { "mpq8646", "mpq8785" };
+#define MPQ_DEBUGFS_DRIVERS_N \
+	(sizeof(MPQ_DEBUGFS_DRIVERS) / sizeof(MPQ_DEBUGFS_DRIVERS[0]))
+
 int
 check_alarm_poll_quiescent(int bus, int addr, bool force) {
 	char path[MPQ_DEBUGFS_POLL_PATH_MAX];
-	snprintf(path, sizeof(path),
-		 "/sys/kernel/debug/mpq8785/%d-%04x/alarm_poll_interval_ms",
-		 bus, addr);
+	FILE *f = NULL;
 
-	FILE *f = fopen(path, "r");
+	for (size_t i = 0; i < MPQ_DEBUGFS_DRIVERS_N; i++) {
+		snprintf(path, sizeof(path),
+			 "/sys/kernel/debug/%s/%d-%04x/alarm_poll_interval_ms",
+			 MPQ_DEBUGFS_DRIVERS[i], bus, addr);
+		f = fopen(path, "r");
+		if (f)
+			break;
+	}
 	if (!f) {
 		/*
-		 * No kernel driver bound / debugfs disabled / not mpq8785.
+		 * No kernel mpq driver bound / debugfs disabled.
 		 * Nothing to race with.
 		 */
 		return 0;
@@ -172,7 +185,7 @@ check_alarm_poll_quiescent(int bus, int addr, bool force) {
 		return 0;
 	}
 
-	warnx("REFUSING to write: kernel mpq8785 driver's\n"
+	warnx("REFUSING to write: kernel mpq8646/mpq8785 driver's\n"
 	      "            alarm-poll worker is active (%s = %u ms).\n"
 	      "            Its STATUS_WORD reads would race with this\n"
 	      "            bulk write.\n"

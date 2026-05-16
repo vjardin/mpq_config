@@ -61,7 +61,7 @@ def reg(request, fixtures, chip_bus, chip_addr):
         # Target: read the live chip via mpq_config on the board.
         board = request.getfixturevalue("board")
         board.run("echo 0 > /sys/kernel/tracing/events/mpq8785/enable 2>/dev/null", t=3)
-        board.run("echo 0 > /sys/kernel/debug/mpq8785/0-0010/alarm_poll_interval_ms", t=3)
+        board.run("echo 0 > /sys/kernel/debug/mpq8646/0-0010/alarm_poll_interval_ms", t=3)
         rc, body = board.run(
             f"mpq_config read --bus {chip_bus} --addr 0x{chip_addr:02x} "
             f"--all --output /tmp/health.dmp 2>&1", t=15)

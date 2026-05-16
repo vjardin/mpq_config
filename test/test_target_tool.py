@@ -23,7 +23,7 @@ EXPECTED_DRIFT_REGS = {"C2", "D2", "F8"}
 def quiesce(board):
     board.run("echo 0 > /sys/kernel/tracing/events/mpq8785/enable 2>/dev/null",
               t=3)
-    board.run("echo 0 > /sys/kernel/debug/mpq8785/0-0010/alarm_poll_interval_ms",
+    board.run("echo 0 > /sys/kernel/debug/mpq8646/0-0010/alarm_poll_interval_ms",
               t=3)
 
 
@@ -123,7 +123,7 @@ def test_live_diff_vs_same_instant_dump_has_only_telemetry_jitter(board, chip_bu
 
 
 def test_write_refuses_with_alarm_poll_active(board, chip_bus, chip_addr):
-    board.run("echo 5000 > /sys/kernel/debug/mpq8785/0-0010/alarm_poll_interval_ms",
+    board.run("echo 5000 > /sys/kernel/debug/mpq8646/0-0010/alarm_poll_interval_ms",
               t=3)
     try:
         rc, body = board.run(
@@ -131,7 +131,7 @@ def test_write_refuses_with_alarm_poll_active(board, chip_bus, chip_addr):
             f"--input /tmp/chip.dmp 2>&1 | head -10", t=10)
         assert "REFUSING" in body, f"write didn't refuse: {body!r}"
     finally:
-        board.run("echo 0 > /sys/kernel/debug/mpq8785/0-0010/alarm_poll_interval_ms",
+        board.run("echo 0 > /sys/kernel/debug/mpq8646/0-0010/alarm_poll_interval_ms",
                   t=3)
 
 
