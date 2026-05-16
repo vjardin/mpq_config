@@ -33,6 +33,10 @@ class Board:
         self.s.write(b"\r")
         time.sleep(0.3)
         self.s.reset_input_buffer()
+        # Pin the terminal width so busybox's line editor doesn't wrap
+        self.s.write(b"stty cols 1000 rows 200 2>/dev/null\r")
+        time.sleep(0.2)
+        self.s.reset_input_buffer()
 
     def close(self):
         try:
