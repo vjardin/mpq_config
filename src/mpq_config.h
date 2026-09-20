@@ -105,7 +105,7 @@ enum {
 #define MPQ_IOUT_DEN                    2U
 #define MPQ_VID_VOUT_NUM                25U     /* raw * 25 / 16 = 1.5625 mV */
 #define MPQ_VID_VOUT_DEN                16U
-#define MPQ_MV_PER_V                    1000UL
+#define MPQ_MV_PER_V                    1000U
 
 /* NVM-busy retry parameters (after CLEAR_LAST_FAULT / STORE_USER_ALL) */
 #define MPQ_NVM_BUSY_RETRIES            5
