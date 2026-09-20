@@ -14,8 +14,8 @@ stays in sync with what a healthy chip looks like, and that the
 on-target read path produces values our envelope assertions accept."""
 
 import re
-import pytest
 
+import pytest
 
 HEALTHY_VIN_MV = (11000, 13200)
 HEALTHY_VOUT_MV = (780, 920)

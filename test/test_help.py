@@ -3,6 +3,7 @@
 """help / usage / argument-validation surface."""
 
 import subprocess
+
 import pytest
 
 pytestmark = pytest.mark.host
@@ -14,7 +15,7 @@ SUBCOMMANDS = [
 
 
 def run_cli(mpq, *args, expect_rc=None):
-    r = subprocess.run([mpq, *args], capture_output=True, text=True)
+    r = subprocess.run([mpq, *args], capture_output=True, text=True, check=False)
     if expect_rc is not None:
         assert r.returncode == expect_rc, \
             f"rc={r.returncode}: stdout={r.stdout!r} stderr={r.stderr!r}"

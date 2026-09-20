@@ -15,6 +15,7 @@ Regenerate after an intentional decoder change:
 
 import os
 import subprocess
+
 import pytest
 
 pytestmark = pytest.mark.host
@@ -22,10 +23,11 @@ pytestmark = pytest.mark.host
 
 def test_explain_matches_golden(mpq_config_bin, fixtures, test_data):
     golden_path = os.path.join(test_data, "u2200-live.explain.golden.txt")
-    golden = open(golden_path).read().splitlines()
+    with open(golden_path) as f:
+        golden = f.read().splitlines()
 
     r = subprocess.run([mpq_config_bin, "explain", fixtures["live_dmp"]],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     assert r.returncode == 0, r.stderr
     # Skip the leading `# explain: <path>` line. It embeds the
     # absolute path that varies by checkout location.

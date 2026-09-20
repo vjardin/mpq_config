@@ -9,6 +9,7 @@ decoders print."""
 
 import re
 import subprocess
+
 import pytest
 
 pytestmark = pytest.mark.host
@@ -30,7 +31,7 @@ def parse_dump(path):
 @pytest.fixture(scope="module")
 def explain_lines(mpq_config_bin, fixtures):
     r = subprocess.run([mpq_config_bin, "explain", fixtures["live_dmp"]],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     assert r.returncode == 0
     lines = {}
     for line in r.stdout.splitlines():
@@ -60,7 +61,7 @@ def test_vout_command_linear16_exp_minus_9(explain_lines, raw):
     fallback (which was the original bug). raw / 512 V."""
     rawv = raw[0x21][1]
     expected_mv = round(rawv * 1000 / 512)
-    name, decoded = explain_lines[0x21]
+    _name, decoded = explain_lines[0x21]
     m = re.search(r"(\d+) mV", decoded)
     assert m, f"VOUT_COMMAND not in mV: {decoded}"
     # 1 mV rounding tolerance

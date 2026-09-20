@@ -8,6 +8,7 @@ surface only the known, explainable drifts."""
 
 import re
 import subprocess
+
 import pytest
 
 pytestmark = pytest.mark.host
@@ -32,7 +33,7 @@ REQUIRED_DRIFT_REGS = {"C2", "D2"}  # CRC_USER may match if NVM untouched
 def diff_output(mpq_config_bin, fixtures):
     r = subprocess.run(
         [mpq_config_bin, "diff", fixtures["factory_txt"], fixtures["live_dmp"]],
-        capture_output=True, text=True)
+        capture_output=True, text=True, check=False)
     return r.stdout + r.stderr
 
 
@@ -61,7 +62,7 @@ def test_real_drifts_are_expected(diff_output):
     drifts = re.findall(
         r"^\s*0x([0-9A-F]+) (\S+)\s+0x[0-9A-F]+ -> 0x[0-9A-F]+",
         diff_output, re.MULTILINE)
-    got = set(r for r, _ in drifts)
+    got = {r for r, _ in drifts}
     unexpected = got - EXPECTED_DRIFT_REGS
     assert unexpected == set(), \
         f"unexpected real drifts: {unexpected} (full: {drifts})"
@@ -74,7 +75,7 @@ def test_factory_file_parses_75_rows(mpq_config_bin, fixtures, tmp_path):
     out = tmp_path / "fac.dmp"
     r = subprocess.run(
         [mpq_config_bin, "from-mps", fixtures["factory_txt"], str(out)],
-        capture_output=True, text=True)
+        capture_output=True, text=True, check=False)
     assert r.returncode == 0
     m = re.search(r"(\d+) entries MPS", r.stderr + r.stdout)
     assert m is not None

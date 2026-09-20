@@ -4,6 +4,7 @@
 
 import re
 import subprocess
+
 import pytest
 
 pytestmark = pytest.mark.host
@@ -28,7 +29,7 @@ def parse_dump(path):
 
 
 def run(mpq, *args, expect_rc=0):
-    r = subprocess.run([mpq, *args], capture_output=True, text=True)
+    r = subprocess.run([mpq, *args], capture_output=True, text=True, check=False)
     assert r.returncode == expect_rc, \
         f"{args}: rc={r.returncode} stderr={r.stderr}"
     return r
@@ -54,7 +55,7 @@ def test_mps_roundtrip_non_telemetry(mpq_config_bin, fixtures, tmp_path):
     run(mpq_config_bin, "from-mps", fixtures["live_mps"], str(rt))
     r = subprocess.run(
         [mpq_config_bin, "diff", fixtures["live_dmp"], str(rt)],
-        capture_output=True, text=True)
+        capture_output=True, text=True, check=False)
     diff_out = r.stdout + r.stderr
     only_orig = re.findall(
         r'\s+0x([0-9A-F]+).*only in.*live\.dmp', diff_out)
@@ -116,7 +117,7 @@ def test_diff_autodetect_mps(mpq_config_bin, fixtures):
     """diff should accept a .txt as one side and parse it as MPS."""
     r = subprocess.run([mpq_config_bin, "diff",
                         fixtures["factory_txt"], fixtures["live_dmp"]],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     # Expect a non-zero exit (there ARE drifts) and a clean count.
     m = re.search(r"(\d+) differences", r.stdout + r.stderr)
     assert m is not None, "diff didn't report a difference count"
@@ -126,7 +127,7 @@ def test_diff_autodetect_mps(mpq_config_bin, fixtures):
 def test_diff_autodetect_csv(mpq_config_bin, fixtures):
     r = subprocess.run([mpq_config_bin, "diff",
                         fixtures["live_csv"], fixtures["live_dmp"]],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     assert "0 differences" in (r.stdout + r.stderr)
 
 
@@ -136,7 +137,7 @@ def test_load_native_empty_errors(mpq_config_bin, fixtures, tmp_path):
     empty.write_text("# header only\n")
     r = subprocess.run([mpq_config_bin, "diff",
                         str(empty), fixtures["live_dmp"]],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     assert r.returncode != 0
     assert "parsed 0 entries" in (r.stdout + r.stderr)
 
@@ -146,7 +147,7 @@ def test_load_csv_empty_errors(mpq_config_bin, tmp_path):
     empty.write_text("reg,width,value,name,clone_safe,notes\n")
     r = subprocess.run([mpq_config_bin, "from-csv",
                         str(empty), "/dev/null"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     assert r.returncode != 0
     assert "parsed 0 entries" in (r.stdout + r.stderr)
 
@@ -156,7 +157,7 @@ def test_load_mps_garbage_errors(mpq_config_bin, tmp_path):
     bad.write_text("this is not an MPS export\nat all\n")
     r = subprocess.run([mpq_config_bin, "from-mps",
                         str(bad), "/dev/null"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     assert r.returncode != 0
     assert "parsed 0 entries" in (r.stdout + r.stderr)
 
@@ -165,5 +166,5 @@ def test_load_native_missing_file_errors(mpq_config_bin, tmp_path):
     r = subprocess.run([mpq_config_bin, "diff",
                         str(tmp_path / "nope.dmp"),
                         str(tmp_path / "also-nope.dmp")],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     assert r.returncode != 0

@@ -4,6 +4,7 @@
 driver binding, hwmon sensor surface, debugfs knobs."""
 
 import re
+
 import pytest
 
 pytestmark = pytest.mark.target
@@ -51,13 +52,13 @@ def test_i2cdetect_shows_master(board):
 
 
 def test_driver_bound(board):
-    rc, body = board.run(
+    _rc, body = board.run(
         "test -d /sys/bus/i2c/drivers/mpq8646/0-0010 && echo BOUND", t=3)
     assert "BOUND" in body
 
 
 def test_hwmon_node_exists(board):
-    rc, body = board.run(
+    _rc, body = board.run(
         "ls -d /sys/bus/i2c/drivers/mpq8646/0-0010/hwmon/hwmon* 2>/dev/null", t=3)
     paths = [L.strip() for L in body.splitlines() if "/hwmon/hwmon" in L]
     assert paths, f"no hwmon node under driver: {body!r}"
@@ -65,12 +66,12 @@ def test_hwmon_node_exists(board):
 
 @pytest.fixture(scope="module")
 def hwmon_readings(board):
-    rc, body = board.run(
+    _rc, body = board.run(
         "ls -d /sys/bus/i2c/drivers/mpq8646/0-0010/hwmon/hwmon* 2>/dev/null", t=3)
     path = next((L.strip() for L in body.splitlines()
                  if "/hwmon/hwmon" in L), None)
     assert path, "no hwmon path"
-    rc, body = board.run(
+    _rc, body = board.run(
         f"cat {path}/in1_input {path}/in2_input "
         f"{path}/curr1_input {path}/temp1_input", t=5)
     nums = re.findall(r"^(-?\d+)$", body, re.MULTILINE)
@@ -107,7 +108,7 @@ def test_hwmon_consistency_with_chip(board, hwmon_readings):
     """hwmon should mirror what mpq_config reads from the chip. Same
     register, same scaling -- values should agree within a small
     LSB jitter from being read seconds apart."""
-    rc, body = board.run(
+    _rc, body = board.run(
         "mpq_config read --bus 0 --addr 0x10 --all --output /tmp/cmp.dmp; "
         "grep -E '^0x(88|8B|8C|8D) ' /tmp/cmp.dmp", t=15)
     raw = {}
@@ -129,21 +130,21 @@ def test_hwmon_consistency_with_chip(board, hwmon_readings):
 
 
 def test_debugfs_knobs_present(board):
-    rc, body = board.run("ls /sys/kernel/debug/mpq8646/0-0010/", t=3)
+    _rc, body = board.run("ls /sys/kernel/debug/mpq8646/0-0010/", t=3)
     found = set(body.split())
     missing = EXPECTED_DEBUGFS_KNOBS - found
     assert not missing, f"debugfs missing knobs: {missing}"
 
 
 def test_debugfs_alarm_poll_default_zero(board):
-    rc, body = board.run(
+    _rc, body = board.run(
         "cat /sys/kernel/debug/mpq8646/0-0010/alarm_poll_interval_ms", t=3)
     m = re.search(r"^\s*(\d+)\s*$", body, re.MULTILINE)
     assert m and int(m.group(1)) == 0
 
 
 def test_debugfs_mfr_config_id_readable(board):
-    rc, body = board.run(
+    _rc, body = board.run(
         "cat /sys/kernel/debug/mpq8646/0-0010/mfr_config_id", t=3)
     # On the target board this is 0x0000 (the MPQ8646 personality 4-digit code)
     m = re.search(r"0x([0-9a-fA-F]+)", body)

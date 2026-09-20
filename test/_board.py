@@ -7,6 +7,7 @@ the literal-tag echo and the post-eval sentinel to bracket output)
 and against kernel printk lines that concatenate onto cat stdout
 without a leading newline (non-anchored noise strip)."""
 
+import contextlib
 import re
 import time
 
@@ -39,10 +40,8 @@ class Board:
         self.s.reset_input_buffer()
 
     def close(self):
-        try:
+        with contextlib.suppress(serial.SerialException, OSError):
             self.s.close()
-        except Exception:
-            pass
 
     def run(self, cmd: str, t: float = 30.0) -> tuple[int, str]:
         """Send `cmd`, wait for tag-bracketed sentinel, return

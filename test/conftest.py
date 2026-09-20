@@ -16,6 +16,7 @@ Without MPQ_SERIAL_PORT, target-marked tests skip; host-marked tests
 always run against fixtures in test-data/."""
 
 import os
+
 import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))

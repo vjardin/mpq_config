@@ -11,6 +11,7 @@ predicate's discriminating power is itself under test."""
 
 import os
 import re
+
 import pytest
 
 pytestmark = pytest.mark.host

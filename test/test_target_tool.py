@@ -6,6 +6,7 @@ chip-health and MPS GUI round-trip including upload of factory.txt."""
 
 import base64
 import re
+
 import pytest
 
 pytestmark = pytest.mark.target
@@ -52,7 +53,7 @@ def parse_dump(text):
 
 # Tool surface
 def test_help_lists_all_subcommands(board):
-    rc, body = board.run("mpq_config help 2>&1", t=5)
+    _rc, body = board.run("mpq_config help 2>&1", t=5)
     for sub in ("read", "write", "to-csv", "from-csv", "to-mps",
                 "from-mps", "diff", "explain", "live-diff"):
         assert sub in body, f"on-board help missing `{sub}`"
@@ -97,13 +98,13 @@ def test_mps_roundtrip_on_chip(board):
 
 
 def test_explain_decodes_vout_mode_linear_exp(board):
-    rc, body = board.run(
+    _rc, body = board.run(
         "mpq_config explain /tmp/chip.dmp 2>&1 | grep -E '^  0x20 '", t=5)
     assert "exp=-9" in body, f"explain VOUT_MODE: {body!r}"
 
 
 def test_self_diff_clean(board):
-    rc, body = board.run("mpq_config diff /tmp/chip.dmp /tmp/chip.dmp 2>&1 | tail -1",
+    _rc, body = board.run("mpq_config diff /tmp/chip.dmp /tmp/chip.dmp 2>&1 | tail -1",
                          t=10)
     assert "0 differences" in body
 
@@ -113,7 +114,7 @@ def test_live_diff_vs_same_instant_dump_has_only_telemetry_jitter(board, chip_bu
     telemetry (chip workload varies between two reads). The fixed
     `live-diff` reads exactly the saved register set, so there
     should be NO `only in saved` entries (only value drifts)."""
-    rc, body = board.run(
+    _rc, body = board.run(
         f"mpq_config live-diff --bus {chip_bus} --addr 0x{chip_addr:02x} "
         f"--input /tmp/chip.dmp 2>&1", t=15)
     only_in = re.findall(r"only in", body)
@@ -126,7 +127,7 @@ def test_write_refuses_with_alarm_poll_active(board, chip_bus, chip_addr):
     board.run("echo 5000 > /sys/kernel/debug/mpq8646/0-0010/alarm_poll_interval_ms",
               t=3)
     try:
-        rc, body = board.run(
+        _rc, body = board.run(
             f"mpq_config write --bus {chip_bus} --addr 0x{chip_addr:02x} "
             f"--input /tmp/chip.dmp 2>&1 | head -10", t=10)
         assert "REFUSING" in body, f"write didn't refuse: {body!r}"
@@ -148,7 +149,8 @@ def test_empty_file_load_refuses(board):
 def factory_pushed(board, fixtures):
     """Push factory.txt to /tmp/factory.txt on the board via base64
     chunks. Returns the path."""
-    src = open(fixtures["factory_txt"], "rb").read()
+    with open(fixtures["factory_txt"], "rb") as f:
+        src = f.read()
     b64 = base64.b64encode(src).decode()
     # 200-char chunks: leave room for the `printf '%s' '...' >> file;
     # echo TAG$?\r` envelope and the busybox terminal line buffer at
@@ -159,7 +161,7 @@ def factory_pushed(board, fixtures):
         board.run(f"printf '%s' '{b64[i:i+chunk]}' >> /tmp/factory.txt.b64",
                   t=5)
     board.run("base64 -d /tmp/factory.txt.b64 > /tmp/factory.txt", t=5)
-    rc, body = board.run("wc -c /tmp/factory.txt", t=3)
+    _rc, body = board.run("wc -c /tmp/factory.txt", t=3)
     # Anchor on `<size> /tmp/factory.txt` so a wrapped sentinel-tag
     # echo can't trick re.search into matching its own hex digits.
     m = re.search(r"(\d+)\s+/tmp/factory\.txt", body)
@@ -177,13 +179,13 @@ def test_live_diff_vs_factory_txt(board, factory_pushed, chip_bus, chip_addr):
     """live-diff against the .txt file directly (auto-detect MPS).
     Expect exactly the real drifts from the factory comparison --
     2 required (C2, D2) and optionally CRC_USER."""
-    rc, body = board.run(
+    _rc, body = board.run(
         f"mpq_config live-diff --bus {chip_bus} --addr 0x{chip_addr:02x} "
         f"--input /tmp/factory.txt 2>&1", t=20)
     drifts = re.findall(
         r"^\s*0x([0-9A-F]+) (\S+)\s+0x[0-9A-F]+ -> 0x[0-9A-F]+",
         body, re.MULTILINE)
-    got = set(r for r, _ in drifts)
+    got = {r for r, _ in drifts}
     unexpected = got - EXPECTED_DRIFT_REGS
     assert unexpected == set(), f"unexpected drifts: {unexpected}"
     missing = REQUIRED_DRIFT_REGS - got
